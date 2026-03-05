@@ -676,23 +676,44 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* ── 3 Quick Feature Cards ── */}
-          <div className="dz-feat-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:26 }}>
-            {[
-              { icon:<MdWifi size={20}/>, ic:'#eff6ff', iconColor:'#3b82f6', label:'WiFi Detection', desc:'ESP32 auto-connects to known networks and reports instantly' },
-              { icon:<FiZap size={18}/>, ic:'#f0fdf4', iconColor:'#16a34a', label:'Live Updates', desc:'Server pushes fresh data every 3 seconds with smart caching' },
-              { icon:<MdLocationOn size={20}/>, ic:'#faf5ff', iconColor:'#8b5cf6', label:'Location History', desc:'Click any faculty to view their complete connection log' },
-            ].map(c => (
-              <div key={c.label} style={{ background:'#fff', border:'1.5px solid #eff0f3', borderRadius:16, padding:'18px 18px', display:'flex', gap:13, alignItems:'flex-start' }}>
-                <div style={{ width:42, height:42, borderRadius:12, background:c.ic, color:c.iconColor, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>{c.icon}</div>
-                <div>
-                  <div style={{ fontWeight:700, color:'#0f172a', fontSize:14, marginBottom:4 }}>{c.label}</div>
-                  <div style={{ color:'#94a3b8', fontSize:12, lineHeight:1.5 }}>{c.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
 
+          {/* ── Faculty Quick Cards (latest 5) ── */}
+          <div className="dz-feat-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:14, marginBottom:26 }}>
+            {filtered.length === 0 ? (
+              <div style={{ gridColumn:'1/-1', background:'#fff', border:'1.5px dashed #e2e8f0', borderRadius:16, padding:'36px', textAlign:'center', color:'#94a3b8' }}>
+                <MdPeople size={32} style={{ marginBottom:8, opacity:.4 }} /><br/>
+                {search ? 'No results match your search' : 'Waiting for ESP32 connections…'}
+              </div>
+            ) : (
+              [...filtered].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5).map(f => {
+                const active = isActive(f.timestamp);
+                return (
+                  <div key={f.facultyId} className="dz-card" style={{ padding:'18px', cursor:'pointer', display:'flex', flexDirection:'column', gap:12 }}
+                    onClick={() => setSelected(f.facultyId)}
+                    onMouseEnter={e => e.currentTarget.style.borderColor='#c6e8d6'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor='#eff0f3'}
+                  >
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                      <div style={{ width:40, height:40, borderRadius:12, background:'linear-gradient(135deg,#e8f5ee,#c6e8d6)', display:'flex', alignItems:'center', justifyContent:'center', color:'#1a5c38', fontSize:20 }}>
+                        <MdPerson />
+                      </div>
+                      <div className={`dz-fac-status ${active ? 'on' : 'off'}`}>{active ? 'Active' : 'Inactive'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight:700, color:'#0f172a', fontSize:14, marginBottom:4 }}>{f.facultyId}</div>
+                      <div style={{ fontSize:12, color:'#64748b', display:'flex', alignItems:'center', gap:5 }}>
+                        <MdWifi size={13} color="#1a5c38"/> {f.wifiName}
+                      </div>
+                    </div>
+                    <div style={{ fontSize:11, color:'#94a3b8', display:'flex', alignItems:'center', gap:5, borderTop:'1px solid #f1f5f9', paddingTop:10 }}>
+                      <MdAccessTime size={12}/> {timeAgo(f.timestamp)}
+                      <MdChevronRight size={14} style={{ marginLeft:'auto', color:'#c6e8d6' }}/>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
 
           {/* 4 Stat Cards */}
           <div className="dz-stats">
@@ -734,82 +755,35 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Lower columns */}
-          <div className="dz-columns">
-            <div>
-
-              {/* Faculty table */}
-              <div className="dz-card">
-                <div className="dz-card-title">
-                  Faculty List
-                  <span className="dz-card-title-action"><MdAdd size={14} /> Add Faculty</span>
-                </div>
-                {filtered.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8' }}>
-                    <MdPeople size={32} style={{ marginBottom: 8 }} /><br />
-                    {search ? 'No results found' : 'Waiting for ESP32 connections…'}
+          {/* Faculty table full width */}
+          <div className="dz-card">
+            <div className="dz-card-title">
+              Faculty List
+              <span className="dz-card-title-action"><MdAdd size={14} /> Add Faculty</span>
+            </div>
+            {filtered.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8' }}>
+                <MdPeople size={32} style={{ marginBottom: 8 }} /><br />
+                {search ? 'No results found' : 'Waiting for ESP32 connections…'}
+              </div>
+            ) : (
+              filtered.map(f => {
+                const active = isActive(f.timestamp);
+                return (
+                  <div key={f.facultyId} className="dz-fac-row" onClick={() => setSelected(f.facultyId)}>
+                    <div className="dz-fac-av"><MdPerson /></div>
+                    <div>
+                      <div className="dz-fac-name">{f.facultyId}</div>
+                      <div className="dz-fac-wifi"><MdWifi size={12} color="#1a5c38" />{f.wifiName}</div>
+                    </div>
+                    <div className={`dz-fac-status ${active ? 'on' : 'off'}`}>
+                      {active ? 'Active' : 'Inactive'}
+                    </div>
+                    <MdChevronRight size={18} color="#cbd5e1" style={{ marginLeft: 4 }} />
                   </div>
-                ) : (
-                  filtered.map(f => {
-                    const active = isActive(f.timestamp);
-                    return (
-                      <div key={f.facultyId} className="dz-fac-row" onClick={() => setSelected(f.facultyId)}>
-                        <div className="dz-fac-av"><MdPerson /></div>
-                        <div>
-                          <div className="dz-fac-name">{f.facultyId}</div>
-                          <div className="dz-fac-wifi"><MdWifi size={12} color="#1a5c38" />{f.wifiName}</div>
-                        </div>
-                        <div className={`dz-fac-status ${active ? 'on' : 'off'}`}>
-                          {active ? 'Active' : 'Inactive'}
-                        </div>
-                        <MdChevronRight size={18} color="#cbd5e1" style={{ marginLeft: 4 }} />
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Right panel */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              {/* Time tracker */}
-              <div className="dz-time-card">
-                <div className="dz-time-label">System Clock</div>
-                <div className="dz-time-val"><Clock /></div>
-              </div>
-
-              {/* Recent connections */}
-              <div className="dz-card" style={{ flex: 1 }}>
-                <div className="dz-card-title">
-                  Recent
-                  <span className="dz-card-title-action">+ New</span>
-                </div>
-                {facultyData.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#94a3b8', padding: '20px 0' }}>No data yet</div>
-                ) : (
-                  [...facultyData]
-                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                    .slice(0, 6)
-                    .map((f, i) => {
-                      const active = isActive(f.timestamp);
-                      return (
-                        <div key={f.facultyId} className="dz-act-row" style={{ cursor: 'pointer' }} onClick={() => setSelected(f.facultyId)}>
-                          <div className={`dz-act-ic ${active ? 'green' : 'amber'}`}>
-                            <MdPerson />
-                          </div>
-                          <div className="dz-act-main">
-                            <div className="dz-act-name">{f.facultyId}</div>
-                            <div className="dz-act-time">{f.wifiName}</div>
-                          </div>
-                          <div className={`dz-act-badge ${active ? 'live' : 'offline'}`}>
-                            {active ? 'Live' : timeAgo(f.timestamp)}
-                          </div>
-                        </div>
-                      );
-                    })
-                )}
-              </div>
-            </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
