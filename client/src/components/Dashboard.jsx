@@ -297,10 +297,34 @@ if (!document.getElementById('_donezo_ft')) {
     @keyframes dz-spin { to{transform:rotate(360deg)} }
     .dz-spinning { animation:dz-spin .7s linear infinite; }
 
+    /* ── Responsive ── */
+    @media(max-width:1100px){
+      .dz-sidebar { width: 200px; }
+      .dz-main    { margin-left: 200px; }
+    }
     @media(max-width:900px){
-      .dz-sidebar{display:none;} .dz-main{margin-left:0;}
-      .dz-stats{grid-template-columns:1fr 1fr;}
-      .dz-columns,.dz-columns-3{grid-template-columns:1fr;}
+      .dz-sidebar { display:none; }
+      .dz-main    { margin-left:0; max-width:100vw; }
+      .dz-content { padding: 20px 18px; }
+      .dz-stats   { grid-template-columns: 1fr 1fr; }
+      .dz-columns,.dz-columns-3 { grid-template-columns: 1fr; }
+      .dz-hero-pills { flex-wrap: wrap; gap: 8px !important; }
+    }
+    @media(max-width:700px){
+      .dz-stats          { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .dz-feat-grid      { grid-template-columns: 1fr !important; }
+      .dz-hero-inner     { flex-direction: column !important; gap: 20px !important; }
+      .dz-hero-right     { align-items: flex-start !important; width: 100%; }
+      .dz-hero-clock     { width: 100%; text-align: left !important; }
+      .dz-topbar         { padding: 0 14px; gap: 10px; }
+      .dz-search         { max-width: none; }
+    }
+    @media(max-width:480px){
+      .dz-stats          { grid-template-columns: 1fr; }
+      .dz-content        { padding: 16px 12px; }
+      .dz-stat-num       { font-size: 30px; }
+      .dz-card           { padding: 16px; }
+      .dz-detail-banner  { padding: 22px 18px; flex-direction: column; align-items: flex-start; gap: 14px; }
     }
   `;
   document.head.appendChild(el);
@@ -606,9 +630,9 @@ const Dashboard = () => {
           <div style={{
             background: 'linear-gradient(135deg, #1a5c38 0%, #2d7a4f 60%, #14532d 100%)',
             borderRadius: 22, padding: '36px 36px 32px', marginBottom: 26,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             position: 'relative', overflow: 'hidden',
           }}>
+            <div className="dz-hero-inner" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:24 }}>
             {/* Decorative blobs */}
             <div style={{ position:'absolute', right:-40, top:-40, width:200, height:200, borderRadius:'50%', background:'rgba(255,255,255,.06)' }}/>
             <div style={{ position:'absolute', right:80, bottom:-60, width:160, height:160, borderRadius:'50%', background:'rgba(255,255,255,.04)' }}/>
@@ -627,7 +651,7 @@ const Dashboard = () => {
               <p style={{ fontSize:15, color:'rgba(255,255,255,.65)', maxWidth:420, lineHeight:1.6, marginBottom:22 }}>
                 Real-time faculty location tracking powered by ESP32 WiFi detection. Monitor who's on campus — instantly.
               </p>
-              <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+              <div className="dz-hero-pills" style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:7, background:'rgba(255,255,255,.12)', border:'1px solid rgba(255,255,255,.18)', borderRadius:10, padding:'8px 14px', fontSize:13, fontWeight:600, color:'#fff' }}>
                   <MdPeople size={16}/> {totalFaculty} Faculty Tracked
                 </div>
@@ -640,19 +664,20 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div style={{ position:'relative', zIndex:1, textAlign:'right', flexShrink:0, display:'flex', flexDirection:'column', gap:12, alignItems:'flex-end' }}>
+            <div className="dz-hero-right" style={{ position:'relative', zIndex:1, flexShrink:0, display:'flex', flexDirection:'column', gap:12, alignItems:'flex-end' }}>
               <button className="dz-btn-outline" style={{ background:'rgba(255,255,255,.15)', border:'1px solid rgba(255,255,255,.25)', color:'#fff', backdropFilter:'blur(8px)' }} onClick={() => fetchData(true)}>
                 <FiRefreshCw size={14} className={spinning ? 'dz-spinning' : ''} /> Refresh
               </button>
-              <div style={{ background:'rgba(255,255,255,.07)', border:'1px solid rgba(255,255,255,.12)', borderRadius:14, padding:'14px 18px', textAlign:'center', minWidth:100 }}>
+              <div className="dz-hero-clock" style={{ background:'rgba(255,255,255,.07)', border:'1px solid rgba(255,255,255,.12)', borderRadius:14, padding:'14px 18px', textAlign:'center', minWidth:100 }}>
                 <div style={{ fontSize:11, color:'rgba(255,255,255,.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4 }}>System Clock</div>
                 <div style={{ fontSize:20, fontWeight:800, color:'#fff', letterSpacing:'.04em' }}><Clock /></div>
               </div>
             </div>
+            </div>
           </div>
 
           {/* ── 3 Quick Feature Cards ── */}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:26 }}>
+          <div className="dz-feat-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:26 }}>
             {[
               { icon:<MdWifi size={20}/>, ic:'#eff6ff', iconColor:'#3b82f6', label:'WiFi Detection', desc:'ESP32 auto-connects to known networks and reports instantly' },
               { icon:<FiZap size={18}/>, ic:'#f0fdf4', iconColor:'#16a34a', label:'Live Updates', desc:'Server pushes fresh data every 3 seconds with smart caching' },
