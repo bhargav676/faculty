@@ -8,7 +8,7 @@ const Dashboard = () => {
     const [error, setError] = useState(null);
 
     // Replace with your local machine's IP if testing from ESP32, or localhost for local browser testing
-    const API_URL = 'http://localhost:5000/api/location/latest'; 
+    const API_URL = 'https://facultyserver-lws4.onrender.com/api/location/latest'; 
 
     useEffect(() => {
         const fetchLocationData = async () => {
